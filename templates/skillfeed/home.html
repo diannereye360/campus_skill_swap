@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- ====== HERO SECTION ====== -->
+    <section class="hero-section">
+        <span class="hero-slash">/</span>
+        <h1>Share Your Skills. Learn New Ones.</h1>
+        <p>Connect with fellow students and exchange skills, knowledge, and experiences.</p>
+        {% if not user.is_authenticated %}
+        <div>
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg me-3">Get Started</a>
+            <a href="{% url 'skill_list' %}" class="btn btn-outline-light btn-lg">Browse Skills</a>
+        </div>
+        {% else %}
+        <div>
+            <a href="{% url 'skill_create' %}" class="btn btn-light btn-lg me-3">Post Your Skill</a>
+            <a href="{% url 'skill_list' %}" class="btn btn-outline-light btn-lg">Browse Skills</a>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- ====== STATISTICS ====== -->
+    <section class="row mb-5">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-number">{{ total_skills }}</div>
+                <div class="stat-label">Skills Available</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-number">{{ total_requests }}</div>
+                <div class="stat-label">Exchange Requests</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== FEATURED SKILLS ====== -->
+    {% if recent_skills %}
+    <section>
+        <h2 class="mb-4">Recently Posted Skills</h2>
+        <div class="row">
+            {% for skill in recent_skills %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="skill-card">
+                    <div class="skill-card-header">
+                        <h5 class="skill-card-title">{{ skill.title }}</h5>
+                        <span class="skill-category-badge">{{ skill.get_category_display }}</span>
+                    </div>
+                    <div class="skill-card-body">
+                        <p class="text-muted-sm">By <strong style="color:#ffffff;">{{ skill.owner.username }}</strong></p>
+                        <p>{{ skill.description|truncatewords:20 }}</p>
+                        {% with avg=skill.ratings.all %}
+                        {% if avg %}
+                        <div class="star-rating mt-2">
+                            {% with score=skill.avg_rating %}
+                            {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= score %}filled{% endif %}">★</span>
+                            {% endfor %}
+                            {% endwith %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="skill-card-footer">
+                        <span class="skill-price">{{ skill.get_price_display }}</span>
+                        <a href="{% url 'skill_detail' skill.id %}" class="btn btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ====== HOW IT WORKS ====== -->
+    <section class="py-5 mt-4">
+        <h2 class="text-center mb-5">How It Works</h2>
+        <div class="row">
+            <div class="col-md-3 text-center mb-4">
+                <div class="mb-3" style="font-size:2.2rem; color:#c8f400;">01</div>
+                <h5>Create Account</h5>
+                <p class="text-muted-sm">Sign up and set up your profile</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="mb-3" style="font-size:2.2rem; color:#c8f400;">02</div>
+                <h5>Post Skills</h5>
+                <p class="text-muted-sm">Share skills you can teach or help with</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="mb-3" style="font-size:2.2rem; color:#c8f400;">03</div>
+                <h5>Browse & Request</h5>
+                <p class="text-muted-sm">Find skills you want to learn</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="mb-3" style="font-size:2.2rem; color:#c8f400;">04</div>
+                <h5>Connect & Learn</h5>
+                <p class="text-muted-sm">Make arrangements and exchange skills</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

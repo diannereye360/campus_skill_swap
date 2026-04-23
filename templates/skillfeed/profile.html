@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- ====== PROFILE HEADER ====== -->
+    <div class="profile-card">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="profile-picture">
+                {% else %}
+                <div class="profile-picture bg-secondary d-flex align-items-center justify-content-center text-white"
+                    style="font-size: 2rem;">
+                    👤
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-9">
+                <h2 class="user-name">{{ user.get_full_name | default:user.username }}</h2>
+                <p class="text-muted-sm mb-2">@{{ user.username }}</p>
+                {% if profile.location %}
+                <p class="text-muted-sm">📍 {{ profile.location }}</p>
+                {% endif %}
+                {% if profile.bio %}
+                <p>{{ profile.bio }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ====== STATS ====== -->
+        <div class="user-stats mt-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ user_skills.count }}</div>
+                <div class="stat-label">Skills Posted</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ user.skill_requests_received.count }}</div>
+                <div class="stat-label">Requests Received</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ user.skill_requests_made.count }}</div>
+                <div class="stat-label">Requests Made</div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- ====== EDIT PROFILE FORM ====== -->
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="mb-4">Edit Profile</h2>
+
+            <form method="POST" enctype="multipart/form-data" class="fade-in">
+                {% csrf_token %}
+
+                <!-- Bio -->
+                <div class="mb-4">
+                    <label for="id_bio" class="form-label">
+                        <strong>Bio</strong>
+                        <span class="badge bg-info">Optional</span>
+                    </label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <div class="form-error">{{ form.bio.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Tell other students about yourself</small>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="mb-4">
+                    <label for="id_profile_picture" class="form-label">
+                        <strong>Profile Picture</strong>
+                        <span class="badge bg-info">Optional</span>
+                    </label>
+                    {{ form.profile_picture }}
+                    {% if form.profile_picture.errors %}
+                    <div class="form-error">{{ form.profile_picture.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Upload JPG, PNG, or GIF (Max 5MB)</small>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-4">
+                    <label for="id_phone_number" class="form-label">
+                        <strong>Phone Number</strong>
+                        <span class="badge bg-info">Optional</span>
+                    </label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                    <div class="form-error">{{ form.phone_number.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Location -->
+                <div class="mb-4">
+                    <label for="id_location" class="form-label">
+                        <strong>Location</strong>
+                        <span class="badge bg-info">Optional</span>
+                    </label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                    <div class="form-error">{{ form.location.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">City, campus, or area</small>
+                </div>
+
+                <!-- Submit -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        Save Changes
+                    </button>
+                    <a href="{% url 'home' %}" class="btn btn-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- ====== YOUR SKILLS SIDEBAR ====== -->
+        <div class="col-lg-4">
+            <h3 class="mb-3">Your Skills</h3>
+            {% if user_skills %}
+            <div class="list-group">
+                {% for skill in user_skills %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ skill.title }}</h6>
+                            <p class="text-muted-sm mb-0">{{ skill.get_category_display }}</p>
+                            {% if not skill.is_available %}
+                            <span class="badge bg-warning">Unavailable</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'skill_detail' skill.id %}" class="btn btn-sm btn-outline-primary">
+                            View
+                        </a>
+                        <a href="{% url 'skill_edit' skill.id %}" class="btn btn-sm btn-outline-secondary">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'skill_create' %}" class="btn btn-primary w-100 mt-3">
+                ➕ Post New Skill
+            </a>
+            {% else %}
+            <div class="alert alert-info">
+                You haven't posted any skills yet.
+                <a href="{% url 'skill_create' %}" class="alert-link">Create one now!</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

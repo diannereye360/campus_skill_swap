@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card shadow-lg p-5">
+                <h2 class="text-center mb-4">Log In</h2>
+
+                <!-- ====== LOGIN FORM ====== -->
+                <form method="POST" class="fade-in">
+                    {% csrf_token %}
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required
+                            placeholder="Enter your username" autofocus>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required
+                            placeholder="Enter your password">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                        Log In
+                    </button>
+                </form>
+
+                <!-- ====== SIGN UP LINK ====== -->
+                <div class="text-center">
+                    <p>Don't have an account?
+                        <a href="{% url 'register' %}" class="fw-bold text-primary">Sign up here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

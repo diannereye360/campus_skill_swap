@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">📊 Dashboard</h1>
+
+    <!-- ====== QUICK STATS ====== -->
+    <div class="user-stats mb-5">
+        <div class="stat-box">
+            <div class="stat-number">{{ skill_count }}</div>
+            <div class="stat-label">Skills Posted</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ received_count }}</div>
+            <div class="stat-label">Pending Requests</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ made_count }}</div>
+            <div class="stat-label">Requests Made</div>
+        </div>
+    </div>
+
+    <!-- ====== LAYOUTS WITH TABS ====== -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests"
+                type="button">
+                📬 Requests Received ({{ received_requests.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="made-tab" data-bs-toggle="tab" data-bs-target="#made" type="button">
+                📤 Requests Made ({{ made_requests.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="skills-tab" data-bs-toggle="tab" data-bs-target="#skills" type="button">
+                🎓 My Skills ({{ user_skills.count }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- ====== REQUESTS RECEIVED ====== -->
+        <div class="tab-pane fade show active" id="requests" role="tabpanel">
+            {% if received_requests %}
+            {% for request in received_requests %}
+            <div class="request-card">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h5>
+                            {{ request.requester.username }} requested <strong>{{ request.skill.title }}</strong>
+                        </h5>
+                        <p class="text-muted-sm mb-2">
+                            Requested {{ request.requested_at|date:"M d, Y" }}
+                        </p>
+                        <p class="mb-3">{{ request.message|truncatewords:30 }}</p>
+                        <span class="request-status {{ request.status }}">
+                            {{ request.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        {% if request.status == 'pending' %}
+                        <a href="{% url 'respond_request' request.id %}" class="btn btn-sm btn-primary">
+                            Respond
+                        </a>
+                        {% else %}
+                        <p class="text-muted-sm">Responded</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-info">
+                No requests yet. When students are interested in your skills, they'll appear here.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ====== REQUESTS MADE ====== -->
+        <div class="tab-pane fade" id="made" role="tabpanel">
+            {% if made_requests %}
+            {% for request in made_requests %}
+            <div class="request-card">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h5>
+                            You requested <strong>{{ request.skill.title }}</strong> from {{ request.responder.username
+                            }}
+                        </h5>
+                        <p class="text-muted-sm mb-2">
+                            Requested {{ request.requested_at|date:"M d, Y" }}
+                        </p>
+                        <p class="mb-3">Your message: {{ request.message|truncatewords:30 }}</p>
+                        <span class="request-status {{ request.status }}">
+                            {{ request.get_status_display }}
+                        </span>
+                        {% if request.response_message %}
+                        <p class="mt-2 text-muted-sm">
+                            <strong>Response:</strong> {{ request.response_message|truncatewords:30 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <a href="{% url 'skill_detail' request.skill.id %}" class="btn btn-sm btn-outline-primary">
+                            View Skill
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-info">
+                You haven't requested any skills yet.
+                <a href="{% url 'skill_list' %}" class="alert-link">Browse available skills</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ====== MY SKILLS ====== -->
+        <div class="tab-pane fade" id="skills" role="tabpanel">
+            {% if user_skills %}
+            <div class="row">
+                {% for skill in user_skills %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ skill.title }}</h5>
+                            <p class="text-muted-sm">{{ skill.get_category_display }}</p>
+                            <p class="card-text">{{ skill.description|truncatewords:20 }}</p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'skill_detail' skill.id %}" class="btn btn-sm btn-primary">
+                                    View
+                                </a>
+                                <a href="{% url 'skill_edit' skill.id %}" class="btn btn-sm btn-secondary">
+                                    Edit
+                                </a>
+                                <a href="{% url 'skill_delete' skill.id %}" class="btn btn-sm btn-danger">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted-sm">
+                            {% if skill.is_available %}
+                            <span class="badge bg-success">Available</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Unavailable</span>
+                            {% endif %}
+                            • {{ skill.view_count }} views
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You haven't posted any skills yet.
+                <a href="{% url 'skill_create' %}" class="alert-link">Post your first skill</a>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'skill_create' %}" class="btn btn-primary mt-3">
+                ➕ Post New Skill
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

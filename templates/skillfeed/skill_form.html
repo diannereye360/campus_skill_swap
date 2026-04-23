@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Skill - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h1 class="mb-4">{{ action }} a Skill</h1>
+
+                    <!-- ====== SKILL FORM ====== -->
+                    <form method="POST" class="fade-in">
+                        {% csrf_token %}
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="id_title" class="form-label">
+                                <strong>Skill Title</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="form-error">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <small class="form-help">
+                                Give your skill a clear, descriptive title (e.g., "Python Programming Tutoring")
+                            </small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="id_description" class="form-label">
+                                <strong>Description</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="form-error">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <small class="form-help">
+                                Describe what you offer in detail: experience level, duration, what students will learn,
+                                etc.
+                            </small>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-4">
+                            <label for="id_category" class="form-label">
+                                <strong>Category</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="form-error">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price Type -->
+                        <div class="mb-4">
+                            <label for="id_price_type" class="form-label">
+                                <strong>Price Type</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.price_type }}
+                            {% if form.price_type.errors %}
+                            <div class="form-error">{{ form.price_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price Amount (conditional) -->
+                        <div class="mb-4">
+                            <label for="id_price_amount" class="form-label">
+                                <strong>Price Amount</strong>
+                                <span class="text-danger" id="price-required-asterisk" style="display:none;">*</span>
+                                <span class="badge bg-info">Optional</span>
+                            </label>
+                            {{ form.price_amount }}
+                            {% if form.price_amount.errors %}
+                            <div class="form-error">{{ form.price_amount.errors }}</div>
+                            {% endif %}
+                            <small class="form-help">
+                                Only fill this if you selected "Paid" above. Enter amount in dollars.
+                            </small>
+                        </div>
+
+                        <!-- Contact Preference -->
+                        <div class="mb-4">
+                            <label for="id_contact_preference" class="form-label">
+                                <strong>Preferred Contact Method</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.contact_preference }}
+                            {% if form.contact_preference.errors %}
+                            <div class="form-error">{{ form.contact_preference.errors }}</div>
+                            {% endif %}
+                            <small class="form-help">
+                                How should interested students reach out to you?
+                            </small>
+                        </div>
+
+                        <!-- Availability Status -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_available }}
+                                <label class="form-check-label" for="id_is_available">
+                                    <strong>This skill is available now</strong>
+                                </label>
+                            </div>
+                            <small class="form-help">
+                                Uncheck if you're not currently offering this skill
+                            </small>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'dashboard' %}" class="btn btn-secondary px-4">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                {{ action }} Skill
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Helpful Info -->
+            <div class="alert alert-light mt-4" role="alert">
+                <h5>💡 Tips for a Great Skill Post:</h5>
+                <ul class="mb-0">
+                    <li>Be specific about what you offer</li>
+                    <li>Mention your experience level and credentials if relevant</li>
+                    <li>Explain the time commitment (per session, duration, etc.)</li>
+                    <li>List any prerequisites students should have</li>
+                    <li>Be clear about your availability and contact method</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide price amount field based on price type
+    const priceTypeSelect = document.getElementById('id_price_type');
+    const priceAmountField = document.getElementById('id_price_amount').parentElement;
+    const priceRequiredAsterisk = document.getElementById('price-required-asterisk');
+
+    function updatePriceField() {
+        if (priceTypeSelect.value === 'paid') {
+            priceAmountField.style.display = 'block';
+            priceRequiredAsterisk.style.display = 'inline';
+        } else {
+            priceAmountField.style.display = 'none';
+            priceRequiredAsterisk.style.display = 'none';
+        }
+    }
+
+    priceTypeSelect.addEventListener('change', updatePriceField);
+    updatePriceField();  // Run on page load
+</script>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Skills - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- ====== PAGE TITLE ====== -->
+    <h1 class="mb-4">Browse Skills</h1>
+
+    <!-- ====== SEARCH & FILTER ====== -->
+    <div class="mb-4 p-4" style="background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;">
+        <form method="GET" class="row align-items-end gap-3">
+            <!-- Search by Title/Description -->
+            <div class="col-md-4">
+                <label for="search" class="form-label">🔍 Search</label>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search skills..."
+                    value="{{ search_query }}">
+            </div>
+
+            <!-- Filter by Category -->
+            <div class="col-md-3">
+                <label for="category" class="form-label">📂 Category</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="tutoring" {% if category == "tutoring" %}selected{% endif %}>Tutoring</option>
+                    <option value="tech" {% if category == "tech" %}selected{% endif %}>Technology</option>
+                    <option value="creativity" {% if category == "creativity" %}selected{% endif %}>Creative Skills
+                    </option>
+                    <option value="sports" {% if category == "sports" %}selected{% endif %}>Sports & Fitness</option>
+                    <option value="languages" {% if category == "languages" %}selected{% endif %}>Languages</option>
+                    <option value="music" {% if category == "music" %}selected{% endif %}>Music</option>
+                    <option value="writing" {% if category == "writing" %}selected{% endif %}>Writing</option>
+                    <option value="design" {% if category == "design" %}selected{% endif %}>Design</option>
+                    <option value="other" {% if category == "other" %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <!-- Filter by Price Type -->
+            <div class="col-md-3">
+                <label for="price" class="form-label">💰 Price</label>
+                <select class="form-select" id="price" name="price">
+                    <option value="">All Types</option>
+                    <option value="free" {% if price_type == "free" %}selected{% endif %}>Free</option>
+                    <option value="exchange" {% if price_type == "exchange" %}selected{% endif %}>Skill Exchange</option>
+                    <option value="paid" {% if price_type == "paid" %}selected{% endif %}>Paid</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ====== RESULTS COUNT ====== -->
+    <p class="text-muted-sm mb-3">
+        Showing {{ page_obj.paginator.count }} skill{{ page_obj.paginator.count|pluralize }}
+    </p>
+
+    <!-- ====== SKILLS GRID ====== -->
+    {% if page_obj %}
+    <div class="row">
+        {% for skill in page_obj %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="skill-card">
+                <div class="skill-card-header">
+                    <h5 class="skill-card-title">{{ skill.title }}</h5>
+                    <span class="skill-category-badge">{{ skill.get_category_display }}</span>
+                </div>
+                <div class="skill-card-body">
+                    <p class="text-muted-sm">
+                        By <strong>{{ skill.owner.username }}</strong>
+                    </p>
+                    <p class="text-muted-sm">
+                        📍 {{ skill.location | default:"Not specified" }}
+                    </p>
+                    <p>{{ skill.description|truncatewords:20 }}</p>
+                    {% if skill.contact_preference %}
+                    <p class="text-muted-sm">
+                        <small>💬 Contact: {{ skill.get_contact_preference_display }}</small>
+                    </p>
+                    {% endif %}
+                    <div class="star-rating mt-2">
+                        {% for i in "12345" %}
+                        <span class="star {% if forloop.counter <= skill.avg_rating %}filled{% endif %}" style="font-size:0.9rem;">★</span>
+                        {% endfor %}
+                        <span class="star-rating-avg">
+                            {% if skill.ratings.count %}{{ skill.ratings.count }} rating{{ skill.ratings.count|pluralize }}{% else %}No ratings{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="skill-card-footer">
+                    <span class="skill-price">{{ skill.get_price_display }}</span>
+                    <a href="{% url 'skill_detail' skill.id %}" class="btn btn-sm btn-primary">
+                        View
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ====== PAGINATION ====== -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page=1&search={{ search_query }}&category={{ category }}&price={{ price_type }}">
+                    First
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&category={{ category }}&price={{ price_type }}">
+                    Previous
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ num }}&search={{ search_query }}&category={{ category }}&price={{ price_type }}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&category={{ category }}&price={{ price_type }}">
+                    Next
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&category={{ category }}&price={{ price_type }}">
+                    Last
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <strong>No skills found.</strong> Try adjusting your search or filters.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

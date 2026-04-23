@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Respond to Request - Campus Skill Swap{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h1 class="mb-4">Respond to Request</h1>
+
+                    <!-- Request Details -->
+                    <div class="mb-4 p-4" style="background:#181818; border:1px solid #2a2a2a; border-radius:6px;">
+                        <p class="mb-1 text-muted-sm">Request from</p>
+                        <p class="mb-1"><strong style="color:#c8f400;">{{ skill_request.requester.username }}</strong> is interested in:</p>
+                        <h5 class="mb-3">{{ skill_request.skill.title }}</h5>
+                        <hr style="border-color:#2a2a2a;">
+                        <p class="text-muted-sm mb-2"><strong>Their Message:</strong></p>
+                        <p class="mb-0" style="color:#dddddd;">{{ skill_request.message }}</p>
+                    </div>
+
+                    <!-- Response Form -->
+                    <form method="POST" class="fade-in">
+                        {% csrf_token %}
+
+                        <!-- Accept or Decline -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <strong>Your Response</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="d-flex gap-4 mt-2">
+                                {% for radio in form.status %}
+                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
+                                    {{ radio.tag }}
+                                    <span>{{ radio.choice_label }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.status.errors %}
+                            <div class="form-error mt-1">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Response Message -->
+                        <div class="mb-4">
+                            <label for="id_response_message" class="form-label">
+                                <strong>Your Response Message</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.response_message }}
+                            {% if form.response_message.errors %}
+                            <div class="form-error mt-1">{{ form.response_message.errors }}</div>
+                            {% endif %}
+                            <small class="form-help">
+                                Explain your decision, provide details about logistics, timing, next steps, or alternative arrangements.
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-light px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">Send Response</button>
+                        </div>
+                    </form>
+
+                    <!-- Tips -->
+                    <div class="alert alert-info mt-4">
+                        <h6>💡 Response Tips:</h6>
+                        <ul class="mb-0 small">
+                            <li>Be respectful, even if you're declining</li>
+                            <li>If accepting: agree on time, place, duration, any costs</li>
+                            <li>If declining: provide a brief, honest reason</li>
+                            <li>Share your contact information or preferred meeting method</li>
+                            <li>Be professional and clear about next steps</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
